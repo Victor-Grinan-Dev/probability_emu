@@ -9,6 +9,15 @@ def convert_percent_to_int(percent):
         return math.ceil(percent)
     else:
          return math.floor(percent)
+    
+def calculate_percent(part, total):
+    return part / total * 100
+
+def calculate_part(percent, total):
+    return percent / 100 * total
+
+def calculate_total(percent, part):
+    return part / percent * 100
 
 def create_chances(percent:float):
     chances = []
@@ -30,22 +39,20 @@ def get_chance_in_percent(percent):
 
 def luck_translator(accerts, percent, shots):
 
- 
-    expected_amount = percent / 100 * shots
-    print('expected_amount', expected_amount)
-    print(percent - math.floor(percent) > 0)
+    expected_amount = calculate_part(percent, shots)
 
-    if expected_amount - math.floor(expected_amount) > 0:
-        expected_amount = convert_percent_to_int(expected_amount)
-        
     about_under = math.floor(expected_amount)
     about_over = math.ceil(expected_amount)
 
-  
-    print(about_under)
-    print(about_over)
+    if expected_amount - math.floor(expected_amount) > 0:
+        expected_amount = convert_percent_to_int(expected_amount)
+    else:
+        about_under = expected_amount - 1
+        about_over = expected_amount + 1
 
-    if accerts == about_under or accerts == about_over:
+    if accerts == expected_amount:
+        return 'expected amount'
+    elif accerts == about_under or accerts == about_over:
         return 'about average'
     elif accerts > about_over:
         return 'lucky shots'
@@ -61,7 +68,7 @@ def take_chances_in_many_shots(shots, percent):
         if get_chance_in_percent(percent) == 'yes':
             accerts += 1
 
-    return f"{accerts}/{shots}, {luck_translator(accerts, percent, shots)}"
+    return f"{accerts}/{shots}, {luck_translator(accerts, percent, shots)}, you hit {format(calculate_percent(accerts, shots), '.2f')}% out of {format(percent, '.2f')}% expected"
 
 def one_die_probability(req_to_accert:int):
     return ( DIE - ((DIE - 1) - (DIE-req_to_accert))) * (100 / 6)
@@ -69,10 +76,9 @@ def one_die_probability(req_to_accert:int):
 def roll_many_dice(dice_count:int, accert_req:int):
 
     percent = one_die_probability(accert_req)
-    print('percent: ', percent)
     result = take_chances_in_many_shots(dice_count, percent)
     return result
     
 
 if __name__ == '__main__':
-    print(roll_many_dice(50, 4))
+    print(roll_many_dice(45, 3))
